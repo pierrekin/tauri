@@ -404,6 +404,22 @@ pub struct MacOsSettings {
   ///
   /// By Default we use `codesign` which can be found only on macOS.
   pub dmg_sign_command: Option<CustomSignCommandSettings>,
+  /// Specify a custom command to notarize the .app bundle.
+  /// This command needs to have a `%1` in it which is a placeholder for the .app bundle path.
+  ///
+  /// The custom command is responsible for handling both notarization and stapling if desired.
+  /// If this is set, it will be used instead of the native notarization process.
+  pub app_notarize_command: Option<CustomSignCommandSettings>,
+  /// Specify a custom command to notarize the .dmg disk image.
+  /// This command needs to have a `%1` in it which is a placeholder for the .dmg path.
+  ///
+  /// The custom command is responsible for handling both notarization and stapling if desired.
+  pub dmg_notarize_command: Option<CustomSignCommandSettings>,
+  /// Specify a custom command to notarize the .pkg installer.
+  /// This command needs to have a `%1` in it which is a placeholder for the .pkg path.
+  ///
+  /// The custom command is responsible for handling both notarization and stapling if desired.
+  pub pkg_notarize_command: Option<CustomSignCommandSettings>,
 }
 
 /// Entitlements for macOS code signing.

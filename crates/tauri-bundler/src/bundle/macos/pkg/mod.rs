@@ -122,6 +122,11 @@ pub fn bundle_project(settings: &Settings, bundles: &[Bundle]) -> crate::Result<
         }
       }
     }
+
+    // Notarize PKG if custom command is configured
+    if let Some(notarize_command) = &settings.macos().pkg_notarize_command {
+      super::sign::notarize_custom(&pkg_path, notarize_command)?;
+    }
   }
 
   log::info!(action = "Finished"; "PKG installer at {}", pkg_path.display());

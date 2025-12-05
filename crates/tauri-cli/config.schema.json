@@ -3666,6 +3666,39 @@
             }
           ]
         },
+        "appNotarizeCommand": {
+          "description": "Specify a custom command to notarize the .app bundle.\n This command needs to have a `%1` in args which is a placeholder for the .app bundle path.\n\n The custom command is responsible for handling both notarization and stapling if desired.\n If this is set, it will be used instead of the native notarization process.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/CustomSignCommandConfig"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dmgNotarizeCommand": {
+          "description": "Specify a custom command to notarize the .dmg disk image.\n This command needs to have a `%1` in args which is a placeholder for the .dmg path.\n\n The custom command is responsible for handling both notarization and stapling if desired.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/CustomSignCommandConfig"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "pkgNotarizeCommand": {
+          "description": "Specify a custom command to notarize the .pkg installer.\n This command needs to have a `%1` in args which is a placeholder for the .pkg path.\n\n The custom command is responsible for handling both notarization and stapling if desired.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/CustomSignCommandConfig"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "dmg": {
           "description": "DMG-specific settings.",
           "default": {
