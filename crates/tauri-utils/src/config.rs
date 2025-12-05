@@ -144,6 +144,8 @@ pub enum BundleType {
   App,
   /// The Apple Disk Image bundle (.dmg).
   Dmg,
+  /// The macOS PKG installer bundle (.pkg).
+  Pkg,
 }
 
 impl BundleType {
@@ -157,6 +159,7 @@ impl BundleType {
       BundleType::Nsis,
       BundleType::App,
       BundleType::Dmg,
+      BundleType::Pkg,
     ]
   }
 }
@@ -174,6 +177,7 @@ impl Display for BundleType {
         Self::Nsis => "nsis",
         Self::App => "app",
         Self::Dmg => "dmg",
+        Self::Pkg => "pkg",
       }
     )
   }
@@ -202,6 +206,7 @@ impl<'de> Deserialize<'de> for BundleType {
       "nsis" => Ok(Self::Nsis),
       "app" => Ok(Self::App),
       "dmg" => Ok(Self::Dmg),
+      "pkg" => Ok(Self::Pkg),
       _ => Err(DeError::custom(format!("unknown bundle target '{s}'"))),
     }
   }

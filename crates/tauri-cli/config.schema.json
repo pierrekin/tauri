@@ -2370,6 +2370,13 @@
           "enum": [
             "dmg"
           ]
+        },
+        {
+          "description": "The macOS PKG installer bundle (.pkg).",
+          "type": "string",
+          "enum": [
+            "pkg"
+          ]
         }
       ]
     },

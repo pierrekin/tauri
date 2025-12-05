@@ -56,6 +56,7 @@ impl From<BundleType> for PackageType {
       BundleType::Nsis => Self::Nsis,
       BundleType::App => Self::MacOsBundle,
       BundleType::Dmg => Self::Dmg,
+      BundleType::Pkg => Self::Pkg,
     }
   }
 }
