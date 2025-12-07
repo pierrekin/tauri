@@ -420,6 +420,9 @@ pub struct MacOsSettings {
   ///
   /// The custom command is responsible for handling both notarization and stapling if desired.
   pub pkg_notarize_command: Option<CustomSignCommandSettings>,
+  /// Path to the distribution XML file for PKG installer.
+  /// Defaults to `distribution.xml` if not specified.
+  pub pkg_distribution: Option<PathBuf>,
 }
 
 /// Entitlements for macOS code signing.

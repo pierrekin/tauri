@@ -3699,6 +3699,13 @@
             }
           ]
         },
+        "pkgDistribution": {
+          "description": "Path to the distribution XML file for PKG installer.\n Defaults to `distribution.xml` if not specified.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "dmg": {
           "description": "DMG-specific settings.",
           "default": {

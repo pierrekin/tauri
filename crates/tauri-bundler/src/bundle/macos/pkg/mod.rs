@@ -82,12 +82,17 @@ pub fn bundle_project(settings: &Settings, bundles: &[Bundle]) -> crate::Result<
     .output_ok()
     .map_err(|e| crate::Error::ShellScriptError(format!("pkgbuild failed: {}", e)))?;
 
-  // Step 2: Read distribution.xml from project root
-  // User must provide this file for PKG bundling
-  let distribution_xml_path = std::env::current_dir()?.join("distribution.xml");
+  // Step 2: Read distribution.xml
+  // Use configured path or default to distribution.xml
+  let distribution_xml_path = if let Some(custom_path) = &settings.macos().pkg_distribution {
+    std::env::current_dir()?.join(custom_path)
+  } else {
+    std::env::current_dir()?.join("distribution.xml")
+  };
+
   if !distribution_xml_path.exists() {
     return Err(crate::Error::GenericError(
-      "distribution.xml not found in project root. PKG bundling requires a distribution.xml file.".to_string()
+      format!("distribution.xml not found at {}. PKG bundling requires a distribution.xml file.", distribution_xml_path.display())
     ));
   }
 
