@@ -1589,10 +1589,10 @@ fn tauri_config_to_bundle_settings(
       dmg_notarize_command: config.macos.dmg_notarize_command.map(custom_sign_settings),
       pkg_notarize_command: config.macos.pkg_notarize_command.map(custom_sign_settings),
       pkg_distribution: config.macos.pkg_distribution,
-      pkg_main_component: MainPkgComponentSettings {
-        filename: config.macos.pkg_main_component.filename,
-        scripts: config.macos.pkg_main_component.scripts,
-      },
+      pkg_main_component: config.macos.pkg_main_component.map(|c| MainPkgComponentSettings {
+        filename: c.filename,
+        scripts: c.scripts,
+      }),
       pkg_extra_components: config
         .macos
         .pkg_extra_components

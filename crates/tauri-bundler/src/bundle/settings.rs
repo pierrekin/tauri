@@ -454,7 +454,7 @@ pub struct MacOsSettings {
   /// Defaults to `distribution.xml` if not specified.
   pub pkg_distribution: Option<PathBuf>,
   /// Configuration for the main component package.
-  pub pkg_main_component: MainPkgComponentSettings,
+  pub pkg_main_component: Option<MainPkgComponentSettings>,
   /// Extra component packages to include in the PKG installer.
   pub pkg_extra_components: Vec<ExtraPkgComponentSettings>,
 }

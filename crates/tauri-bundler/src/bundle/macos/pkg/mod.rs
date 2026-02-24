@@ -66,8 +66,8 @@ pub fn bundle_project(settings: &Settings, bundles: &[Bundle]) -> crate::Result<
   let main_component_filename = settings
     .macos()
     .pkg_main_component
-    .filename
-    .clone()
+    .as_ref()
+    .and_then(|c| c.filename.clone())
     .unwrap_or_else(|| format!("{}.pkg", product_name));
   let component_pkg_path = pkg_output_path.join(&main_component_filename);
 
@@ -79,8 +79,10 @@ pub fn bundle_project(settings: &Settings, bundles: &[Bundle]) -> crate::Result<
     .arg("/Applications");
 
   // Add scripts if provided for main component
-  if let Some(scripts_path) = &settings.macos().pkg_main_component.scripts {
-    pkgbuild_cmd.arg("--scripts").arg(scripts_path);
+  if let Some(main_component) = &settings.macos().pkg_main_component {
+    if let Some(scripts_path) = &main_component.scripts {
+      pkgbuild_cmd.arg("--scripts").arg(scripts_path);
+    }
   }
 
   pkgbuild_cmd.arg(&component_pkg_path);
