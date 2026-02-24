@@ -169,11 +169,7 @@ fn find_api_key(folder: PathBuf, file_name: &OsString) -> Option<PathBuf> {
 }
 
 /// Sign a PKG installer using productsign
-pub fn sign_pkg(
-  pkg_path: &std::path::Path,
-  identity: &str,
-  settings: &Settings,
-) -> crate::Result<()> {
+pub fn sign_pkg(pkg_path: &std::path::Path, identity: &str) -> crate::Result<()> {
   use crate::utils::CommandExt;
   use std::process::Command;
 

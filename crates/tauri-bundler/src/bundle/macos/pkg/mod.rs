@@ -192,7 +192,7 @@ pub fn bundle_project(settings: &Settings, bundles: &[Bundle]) -> crate::Result<
     let identity = settings.macos().signing_identity.as_deref();
     if identity != Some("-") {
       if let Some(identity) = identity {
-        super::sign::sign_pkg(&pkg_path, identity, settings)?;
+        super::sign::sign_pkg(&pkg_path, identity)?;
       }
     }
   }
