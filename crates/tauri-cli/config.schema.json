@@ -2097,6 +2097,11 @@
           "description": "The Apple Disk Image bundle (.dmg).",
           "type": "string",
           "enum": ["dmg"]
+        },
+        {
+          "description": "The macOS PKG installer bundle (.pkg).",
+          "type": "string",
+          "enum": ["pkg"]
         }
       ]
     },
