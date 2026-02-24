@@ -707,6 +707,10 @@ pub struct MacConfig {
   /// The custom command is responsible for handling both notarization and stapling if desired.
   #[serde(alias = "pkg-notarize-command")]
   pub pkg_notarize_command: Option<CustomSignCommandConfig>,
+  /// Path to the distribution XML file for PKG installer.
+  /// Defaults to `distribution.xml` if not specified.
+  #[serde(alias = "pkg-distribution")]
+  pub pkg_distribution: Option<PathBuf>,
   /// DMG-specific settings.
   #[serde(default)]
   pub dmg: DmgConfig,
@@ -732,6 +736,7 @@ impl Default for MacConfig {
       app_notarize_command: None,
       dmg_notarize_command: None,
       pkg_notarize_command: None,
+      pkg_distribution: None,
       dmg: Default::default(),
     }
   }
