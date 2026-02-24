@@ -192,31 +192,29 @@ pub fn bundle_project(settings: &Settings, bundles: &[Bundle]) -> crate::Result<
 
   // Sign DMG if needed
   // skipping self-signing DMGs https://github.com/tauri-apps/tauri/issues/12288
-  if !settings.no_sign() {
-    if let Some(dmg_sign_command) = &settings.macos().dmg_sign_command {
-      // Use custom signing command
-      super::sign::sign_dmg_custom(&dmg_path, dmg_sign_command)?;
-    } else {
-      // Use native codesign
-      let identity = settings.macos().signing_identity.as_deref();
-      if identity != Some("-") {
-        if let Some(keychain) = super::sign::keychain(identity)? {
-          super::sign::sign(
-            &keychain,
-            vec![super::sign::SignTarget {
-              path: dmg_path.clone(),
-              is_an_executable: false,
-            }],
-            settings,
-          )?;
-        }
+  if let Some(dmg_sign_command) = &settings.macos().dmg_sign_command {
+    // Use custom signing command
+    super::sign::sign_dmg_custom(&dmg_path, dmg_sign_command)?;
+  } else {
+    // Use native codesign
+    let identity = settings.macos().signing_identity.as_deref();
+    if identity != Some("-") {
+      if let Some(keychain) = super::sign::keychain(identity)? {
+        super::sign::sign(
+          &keychain,
+          vec![super::sign::SignTarget {
+            path: dmg_path.clone(),
+            is_an_executable: false,
+          }],
+          settings,
+        )?;
       }
     }
+  }
 
-    // Notarize DMG if custom command is configured
-    if let Some(notarize_command) = &settings.macos().dmg_notarize_command {
-      super::sign::notarize_custom(&dmg_path, notarize_command)?;
-    }
+  // Notarize DMG if custom command is configured
+  if let Some(notarize_command) = &settings.macos().dmg_notarize_command {
+    super::sign::notarize_custom(&dmg_path, notarize_command)?;
   }
 
   Ok(Bundled {

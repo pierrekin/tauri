@@ -45,7 +45,8 @@ pub use self::{
   category::AppCategory,
   settings::{
     AppImageSettings, BundleBinary, BundleSettings, CustomSignCommandSettings, DebianSettings,
-    DmgSettings, Entitlements, IosSettings, MacOsSettings, PackageSettings, PackageType, PlistKind,
+    DmgSettings, Entitlements, IosSettings, MacOsSettings, PackageSettings, PackageType,
+    PkgComponentSettings, PlistKind,
     Position, RpmSettings, Settings, SettingsBuilder, Size, UpdaterSettings,
   },
 };

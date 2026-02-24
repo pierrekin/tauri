@@ -108,9 +108,7 @@ pub fn bundle_project(settings: &Settings) -> crate::Result<Vec<PathBuf>> {
 
   copy_custom_files_to_bundle(&bundle_directory, settings)?;
 
-  if settings.no_sign() {
-    log::warn!("Skipping signing due to --no-sign flag.",);
-  } else if let Some(app_sign_command) = &settings.macos().app_sign_command {
+  if let Some(app_sign_command) = &settings.macos().app_sign_command {
     // Use custom signing command for the .app bundle
     // The custom command is responsible for deep signing the contents of the .app
     super::sign::sign_app_custom(&app_bundle_path, app_sign_command)?;
@@ -152,7 +150,7 @@ pub fn bundle_project(settings: &Settings) -> crate::Result<Vec<PathBuf>> {
         }
         Err(e) => {
           if matches!(e, NotarizeAuthError::MissingTeamId) {
-            return Err(e.into());
+            return Err(crate::Error::GenericError(e.to_string()));
           } else {
             log::warn!("skipping app notarization, {}", e.to_string());
           }

@@ -321,6 +321,27 @@ pub struct IosSettings {
   pub bundle_version: Option<String>,
 }
 
+/// Configuration for a PKG component package.
+#[derive(Clone, Debug)]
+pub struct PkgComponentSettings {
+  /// The package identifier.
+  pub identifier: String,
+  /// The package version.
+  pub version: String,
+  /// Whether this is a virtual package with no payload (scripts only).
+  pub nopayload: bool,
+  /// Path to the component bundle to package (for --component mode).
+  pub component: Option<PathBuf>,
+  /// Path to the root directory containing files to package (for --root mode).
+  pub root: Option<PathBuf>,
+  /// The installation location for the package contents.
+  pub install_location: Option<PathBuf>,
+  /// Path to the directory containing pre/post install scripts.
+  pub scripts: Option<PathBuf>,
+  /// The output filename for this component package.
+  pub filename: String,
+}
+
 /// The macOS bundle settings.
 #[derive(Clone, Debug, Default)]
 pub struct MacOsSettings {
@@ -368,10 +389,10 @@ pub struct MacOsSettings {
   pub hardened_runtime: bool,
   /// Provider short name for notarization.
   pub provider_short_name: Option<String>,
-  /// Path or contents of the entitlements.plist file.
-  pub entitlements: Option<Entitlements>,
-  /// Path to the Info.plist file or raw plist value to merge with the bundle Info.plist.
-  pub info_plist: Option<PlistKind>,
+  /// Path to the entitlements.plist file.
+  pub entitlements: Option<String>,
+  /// Path to the Info.plist file for the bundle.
+  pub info_plist_path: Option<PathBuf>,
   /// Specify a custom command to sign the .app bundle.
   /// This command needs to have a `%1` in it which is just a placeholder for the .app bundle path.
   /// The custom command is responsible for signing everything inside the bundle.
@@ -423,6 +444,11 @@ pub struct MacOsSettings {
   /// Path to the distribution XML file for PKG installer.
   /// Defaults to `distribution.xml` if not specified.
   pub pkg_distribution: Option<PathBuf>,
+  /// The filename for the main component package.
+  /// Defaults to "{app_name}.pkg" if not specified.
+  pub pkg_main_component_filename: Option<String>,
+  /// Extra component packages to include in the PKG installer.
+  pub pkg_extra_components: Vec<PkgComponentSettings>,
 }
 
 /// Entitlements for macOS code signing.

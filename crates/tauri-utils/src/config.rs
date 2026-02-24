@@ -597,6 +597,34 @@ fn dmg_application_folder_position() -> Position {
   Position { x: 480, y: 170 }
 }
 
+/// Configuration for a PKG component package.
+///
+/// See more: <https://v2.tauri.app/reference/config/#pkgcomponentconfig>
+#[skip_serializing_none]
+#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize)]
+#[cfg_attr(feature = "schema", derive(JsonSchema))]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct PkgComponentConfig {
+  /// The package identifier (e.g., "com.example.myapp.component").
+  pub identifier: String,
+  /// The package version.
+  pub version: String,
+  /// Whether this is a virtual package with no payload (scripts only).
+  #[serde(default)]
+  pub nopayload: bool,
+  /// Path to the component bundle to package (for --component mode).
+  pub component: Option<PathBuf>,
+  /// Path to the root directory containing files to package (for --root mode).
+  pub root: Option<PathBuf>,
+  /// The installation location for the package contents.
+  #[serde(alias = "install-location")]
+  pub install_location: Option<PathBuf>,
+  /// Path to the directory containing pre/post install scripts.
+  pub scripts: Option<PathBuf>,
+  /// The output filename for this component package.
+  pub filename: String,
+}
+
 fn de_macos_minimum_system_version<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
 where
   D: Deserializer<'de>,
@@ -711,6 +739,13 @@ pub struct MacConfig {
   /// Defaults to `distribution.xml` if not specified.
   #[serde(alias = "pkg-distribution")]
   pub pkg_distribution: Option<PathBuf>,
+  /// The filename for the main component package.
+  /// Defaults to "{app_name}.pkg" if not specified.
+  #[serde(alias = "pkg-main-component-filename")]
+  pub pkg_main_component_filename: Option<String>,
+  /// Extra component packages to include in the PKG installer.
+  #[serde(alias = "pkg-extra-components", default)]
+  pub pkg_extra_components: Vec<PkgComponentConfig>,
   /// DMG-specific settings.
   #[serde(default)]
   pub dmg: DmgConfig,
@@ -737,6 +772,8 @@ impl Default for MacConfig {
       dmg_notarize_command: None,
       pkg_notarize_command: None,
       pkg_distribution: None,
+      pkg_main_component_filename: None,
+      pkg_extra_components: Vec::new(),
       dmg: Default::default(),
     }
   }

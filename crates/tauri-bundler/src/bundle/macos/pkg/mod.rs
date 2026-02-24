@@ -67,7 +67,12 @@ pub fn bundle_project(settings: &Settings, bundles: &[Bundle]) -> crate::Result<
 
   // Step 1: Create a component package using pkgbuild
   // This packages the .app bundle into a component package
-  let component_pkg_path = pkg_output_path.join("component.pkg");
+  let main_component_filename = settings
+    .macos()
+    .pkg_main_component_filename
+    .clone()
+    .unwrap_or_else(|| format!("{}.pkg", product_name));
+  let component_pkg_path = pkg_output_path.join(&main_component_filename);
 
   let mut pkgbuild_cmd = Command::new("pkgbuild");
   pkgbuild_cmd
@@ -81,6 +86,73 @@ pub fn bundle_project(settings: &Settings, bundles: &[Bundle]) -> crate::Result<
   pkgbuild_cmd
     .output_ok()
     .map_err(|e| crate::Error::ShellScriptError(format!("pkgbuild failed: {}", e)))?;
+
+  // Step 1.5: Build extra component packages
+  for extra_component in &settings.macos().pkg_extra_components {
+    let extra_component_path = pkg_output_path.join(&extra_component.filename);
+
+    let mut extra_pkgbuild_cmd = Command::new("pkgbuild");
+
+    // Add common arguments
+    extra_pkgbuild_cmd
+      .arg("--identifier")
+      .arg(&extra_component.identifier)
+      .arg("--version")
+      .arg(&extra_component.version);
+
+    // Handle different package modes
+    if extra_component.nopayload {
+      // Virtual package mode (no payload, scripts only)
+      extra_pkgbuild_cmd.arg("--nopayload");
+    } else if let Some(component_path) = &extra_component.component {
+      // Component mode (bundle or app)
+      extra_pkgbuild_cmd
+        .arg("--component")
+        .arg(component_path);
+
+      if let Some(install_location) = &extra_component.install_location {
+        extra_pkgbuild_cmd
+          .arg("--install-location")
+          .arg(install_location);
+      }
+    } else if let Some(root_path) = &extra_component.root {
+      // Root mode (directory of files)
+      extra_pkgbuild_cmd
+        .arg("--root")
+        .arg(root_path);
+
+      if let Some(install_location) = &extra_component.install_location {
+        extra_pkgbuild_cmd
+          .arg("--install-location")
+          .arg(install_location);
+      }
+    } else {
+      return Err(crate::Error::GenericError(
+        format!(
+          "Extra component '{}' must specify either nopayload=true, component, or root",
+          extra_component.identifier
+        )
+      ));
+    }
+
+    // Add scripts if provided
+    if let Some(scripts_path) = &extra_component.scripts {
+      extra_pkgbuild_cmd.arg("--scripts").arg(scripts_path);
+    }
+
+    // Add output path
+    extra_pkgbuild_cmd.arg(&extra_component_path);
+
+    log::info!(action = "Running"; "pkgbuild (extra component: {})", extra_component.identifier);
+    extra_pkgbuild_cmd
+      .output_ok()
+      .map_err(|e| {
+        crate::Error::ShellScriptError(format!(
+          "pkgbuild failed for component '{}': {}",
+          extra_component.identifier, e
+        ))
+      })?;
+  }
 
   // Step 2: Read distribution.xml
   // Use configured path or default to distribution.xml
@@ -114,24 +186,22 @@ pub fn bundle_project(settings: &Settings, bundles: &[Bundle]) -> crate::Result<
     .map_err(|e| crate::Error::ShellScriptError(format!("productbuild failed: {}", e)))?;
 
   // Sign PKG if needed
-  if !settings.no_sign() {
-    if let Some(pkg_sign_command) = &settings.macos().pkg_sign_command {
-      // Use custom signing command
-      super::sign::sign_pkg_custom(&pkg_path, pkg_sign_command)?;
-    } else {
-      // Use native productsign
-      let identity = settings.macos().signing_identity.as_deref();
-      if identity != Some("-") {
-        if let Some(identity) = identity {
-          super::sign::sign_pkg(&pkg_path, identity, settings)?;
-        }
+  if let Some(pkg_sign_command) = &settings.macos().pkg_sign_command {
+    // Use custom signing command
+    super::sign::sign_pkg_custom(&pkg_path, pkg_sign_command)?;
+  } else {
+    // Use native productsign
+    let identity = settings.macos().signing_identity.as_deref();
+    if identity != Some("-") {
+      if let Some(identity) = identity {
+        super::sign::sign_pkg(&pkg_path, identity, settings)?;
       }
     }
+  }
 
-    // Notarize PKG if custom command is configured
-    if let Some(notarize_command) = &settings.macos().pkg_notarize_command {
-      super::sign::notarize_custom(&pkg_path, notarize_command)?;
-    }
+  // Notarize PKG if custom command is configured
+  if let Some(notarize_command) = &settings.macos().pkg_notarize_command {
+    super::sign::notarize_custom(&pkg_path, notarize_command)?;
   }
 
   log::info!(action = "Finished"; "PKG installer at {}", pkg_path.display());

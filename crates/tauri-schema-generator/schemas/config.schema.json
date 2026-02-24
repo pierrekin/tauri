@@ -109,7 +109,8 @@
           },
           "files": {},
           "hardenedRuntime": true,
-          "minimumSystemVersion": "10.13"
+          "minimumSystemVersion": "10.13",
+          "pkgExtraComponents": []
         },
         "targets": "all",
         "useLocalToolsDir": false,
@@ -2002,7 +2003,8 @@
             },
             "files": {},
             "hardenedRuntime": true,
-            "minimumSystemVersion": "10.13"
+            "minimumSystemVersion": "10.13",
+            "pkgExtraComponents": []
           },
           "allOf": [
             {
@@ -3180,6 +3182,21 @@
             "null"
           ]
         },
+        "pkgMainComponentFilename": {
+          "description": "The filename for the main component package.\n Defaults to \"{app_name}.pkg\" if not specified.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "pkgExtraComponents": {
+          "description": "Extra component packages to include in the PKG installer.",
+          "default": [],
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PkgComponentConfig"
+          }
+        },
         "dmg": {
           "description": "DMG-specific settings.",
           "default": {
@@ -3201,6 +3218,63 @@
               "$ref": "#/definitions/DmgConfig"
             }
           ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "PkgComponentConfig": {
+      "description": "Configuration for a PKG component package.\n\n See more: <https://v2.tauri.app/reference/config/#pkgcomponentconfig>",
+      "type": "object",
+      "required": [
+        "filename",
+        "identifier",
+        "version"
+      ],
+      "properties": {
+        "identifier": {
+          "description": "The package identifier (e.g., \"com.example.myapp.component\").",
+          "type": "string"
+        },
+        "version": {
+          "description": "The package version.",
+          "type": "string"
+        },
+        "nopayload": {
+          "description": "Whether this is a virtual package with no payload (scripts only).",
+          "default": false,
+          "type": "boolean"
+        },
+        "component": {
+          "description": "Path to the component bundle to package (for --component mode).",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "root": {
+          "description": "Path to the root directory containing files to package (for --root mode).",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "installLocation": {
+          "description": "The installation location for the package contents.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "scripts": {
+          "description": "Path to the directory containing pre/post install scripts.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "filename": {
+          "description": "The output filename for this component package.",
+          "type": "string"
         }
       },
       "additionalProperties": false
