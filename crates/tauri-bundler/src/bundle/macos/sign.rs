@@ -211,7 +211,7 @@ pub fn sign_pkg_custom(
 
   log::info!(action = "Signing"; "PKG with custom command");
 
-  let mut cmd = sign_command_custom(pkg_path, command)?;
+  let mut cmd = build_custom_command(pkg_path, command)?;
   let output = cmd.output_ok()?;
 
   let stdout = String::from_utf8_lossy(output.stdout.as_slice()).into_owned();
@@ -229,7 +229,7 @@ pub fn sign_dmg_custom(
 
   log::info!(action = "Signing"; "DMG with custom command");
 
-  let mut cmd = sign_command_custom(dmg_path, command)?;
+  let mut cmd = build_custom_command(dmg_path, command)?;
   let output = cmd.output_ok()?;
 
   let stdout = String::from_utf8_lossy(output.stdout.as_slice()).into_owned();
@@ -247,7 +247,7 @@ pub fn sign_app_custom(
 
   log::info!(action = "Signing"; ".app bundle with custom command");
 
-  let mut cmd = sign_command_custom(app_path, command)?;
+  let mut cmd = build_custom_command(app_path, command)?;
   let output = cmd.output_ok()?;
 
   let stdout = String::from_utf8_lossy(output.stdout.as_slice()).into_owned();
@@ -256,8 +256,9 @@ pub fn sign_app_custom(
   Ok(())
 }
 
-/// Build a custom signing command with %1 placeholder substitution
-fn sign_command_custom<P: AsRef<std::path::Path>>(
+/// Build a custom command with %1 placeholder substitution
+/// Used for both custom signing and custom notarization commands
+fn build_custom_command<P: AsRef<std::path::Path>>(
   path: P,
   command: &crate::bundle::settings::CustomSignCommandSettings,
 ) -> crate::Result<std::process::Command> {
@@ -286,7 +287,25 @@ fn sign_command_custom<P: AsRef<std::path::Path>>(
     }
   }
 
-  log::info!(action = "Signing"; "Running command from directory: {}", cwd.display());
+  log::info!(action = "Running"; "custom command from directory: {}", cwd.display());
 
   Ok(cmd)
+}
+
+/// Notarize an artifact using a custom command
+pub fn notarize_custom(
+  path: &std::path::Path,
+  command: &crate::bundle::settings::CustomSignCommandSettings,
+) -> crate::Result<()> {
+  use crate::utils::CommandExt;
+
+  log::info!(action = "Notarizing"; "{} with custom command", path.display());
+
+  let mut cmd = build_custom_command(path, command)?;
+  let output = cmd.output_ok()?;
+
+  let stdout = String::from_utf8_lossy(output.stdout.as_slice()).into_owned();
+  log::info!(action = "Notarizing"; "Output of notarization command:\n{}", stdout.trim());
+
+  Ok(())
 }

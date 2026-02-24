@@ -114,6 +114,11 @@ pub fn bundle_project(settings: &Settings) -> crate::Result<Vec<PathBuf>> {
     // Use custom signing command for the .app bundle
     // The custom command is responsible for deep signing the contents of the .app
     super::sign::sign_app_custom(&app_bundle_path, app_sign_command)?;
+
+    // Custom notarization after custom signing
+    if let Some(notarize_command) = &settings.macos().app_notarize_command {
+      super::sign::notarize_custom(&app_bundle_path, notarize_command)?;
+    }
   } else if let Some(keychain) =
     super::sign::keychain(settings.macos().signing_identity.as_deref())?
   {
@@ -132,19 +137,25 @@ pub fn bundle_project(settings: &Settings) -> crate::Result<Vec<PathBuf>> {
     sign(&keychain, sign_paths, settings)?;
 
     // notarization is required for distribution
-    match notarize_auth() {
-      Ok(auth) => {
-        if settings.macos().skip_stapling {
-          notarize_without_stapling(&keychain, app_bundle_path.clone(), &auth)?;
-        } else {
-          notarize(&keychain, app_bundle_path.clone(), &auth)?;
+    if let Some(notarize_command) = &settings.macos().app_notarize_command {
+      // Use custom notarization command
+      super::sign::notarize_custom(&app_bundle_path, notarize_command)?;
+    } else {
+      // Use native notarization
+      match notarize_auth() {
+        Ok(auth) => {
+          if settings.macos().skip_stapling {
+            notarize_without_stapling(&keychain, app_bundle_path.clone(), &auth)?;
+          } else {
+            notarize(&keychain, app_bundle_path.clone(), &auth)?;
+          }
         }
-      }
-      Err(e) => {
-        if matches!(e, NotarizeAuthError::MissingTeamId) {
-          return Err(e.into());
-        } else {
-          log::warn!("skipping app notarization, {}", e.to_string());
+        Err(e) => {
+          if matches!(e, NotarizeAuthError::MissingTeamId) {
+            return Err(e.into());
+          } else {
+            log::warn!("skipping app notarization, {}", e.to_string());
+          }
         }
       }
     }

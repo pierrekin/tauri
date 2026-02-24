@@ -688,6 +688,25 @@ pub struct MacConfig {
   /// By Default we use `codesign` which can be found only on macOS.
   #[serde(alias = "dmg-sign-command")]
   pub dmg_sign_command: Option<CustomSignCommandConfig>,
+  /// Specify a custom command to notarize the .app bundle.
+  /// This command needs to have a `%1` in args which is a placeholder for the .app bundle path.
+  ///
+  /// The custom command is responsible for handling both notarization and stapling if desired.
+  /// If this is set, it will be used instead of the native notarization process.
+  #[serde(alias = "app-notarize-command")]
+  pub app_notarize_command: Option<CustomSignCommandConfig>,
+  /// Specify a custom command to notarize the .dmg disk image.
+  /// This command needs to have a `%1` in args which is a placeholder for the .dmg path.
+  ///
+  /// The custom command is responsible for handling both notarization and stapling if desired.
+  #[serde(alias = "dmg-notarize-command")]
+  pub dmg_notarize_command: Option<CustomSignCommandConfig>,
+  /// Specify a custom command to notarize the .pkg installer.
+  /// This command needs to have a `%1` in args which is a placeholder for the .pkg path.
+  ///
+  /// The custom command is responsible for handling both notarization and stapling if desired.
+  #[serde(alias = "pkg-notarize-command")]
+  pub pkg_notarize_command: Option<CustomSignCommandConfig>,
   /// DMG-specific settings.
   #[serde(default)]
   pub dmg: DmgConfig,
@@ -710,6 +729,9 @@ impl Default for MacConfig {
       app_sign_command: None,
       pkg_sign_command: None,
       dmg_sign_command: None,
+      app_notarize_command: None,
+      dmg_notarize_command: None,
+      pkg_notarize_command: None,
       dmg: Default::default(),
     }
   }

@@ -1585,6 +1585,9 @@ fn tauri_config_to_bundle_settings(
       app_sign_command: config.macos.app_sign_command.map(custom_sign_settings),
       pkg_sign_command: config.macos.pkg_sign_command.map(custom_sign_settings),
       dmg_sign_command: config.macos.dmg_sign_command.map(custom_sign_settings),
+      app_notarize_command: config.macos.app_notarize_command.map(custom_sign_settings),
+      dmg_notarize_command: config.macos.dmg_notarize_command.map(custom_sign_settings),
+      pkg_notarize_command: config.macos.pkg_notarize_command.map(custom_sign_settings),
     },
     windows: WindowsSettings {
       timestamp_url: config.windows.timestamp_url,

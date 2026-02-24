@@ -212,6 +212,11 @@ pub fn bundle_project(settings: &Settings, bundles: &[Bundle]) -> crate::Result<
         }
       }
     }
+
+    // Notarize DMG if custom command is configured
+    if let Some(notarize_command) = &settings.macos().dmg_notarize_command {
+      super::sign::notarize_custom(&dmg_path, notarize_command)?;
+    }
   }
 
   Ok(Bundled {
