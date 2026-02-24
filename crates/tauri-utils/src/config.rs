@@ -597,14 +597,29 @@ fn dmg_application_folder_position() -> Position {
   Position { x: 480, y: 170 }
 }
 
-/// Configuration for a PKG component package.
+/// Configuration for the main PKG component package.
 ///
-/// See more: <https://v2.tauri.app/reference/config/#pkgcomponentconfig>
+/// See more: <https://v2.tauri.app/reference/config/#mainpkgcomponentconfig>
+#[skip_serializing_none]
+#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize, Default)]
+#[cfg_attr(feature = "schema", derive(JsonSchema))]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct MainPkgComponentConfig {
+  /// The output filename for the main component package.
+  /// Defaults to "{app_name}.pkg" if not specified.
+  pub filename: Option<String>,
+  /// Path to the directory containing pre/post install scripts.
+  pub scripts: Option<PathBuf>,
+}
+
+/// Configuration for an extra PKG component package.
+///
+/// See more: <https://v2.tauri.app/reference/config/#extrapkgcomponentconfig>
 #[skip_serializing_none]
 #[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize)]
 #[cfg_attr(feature = "schema", derive(JsonSchema))]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
-pub struct PkgComponentConfig {
+pub struct ExtraPkgComponentConfig {
   /// The package identifier (e.g., "com.example.myapp.component").
   pub identifier: String,
   /// The package version.
@@ -739,13 +754,12 @@ pub struct MacConfig {
   /// Defaults to `distribution.xml` if not specified.
   #[serde(alias = "pkg-distribution")]
   pub pkg_distribution: Option<PathBuf>,
-  /// The filename for the main component package.
-  /// Defaults to "{app_name}.pkg" if not specified.
-  #[serde(alias = "pkg-main-component-filename")]
-  pub pkg_main_component_filename: Option<String>,
+  /// Configuration for the main component package.
+  #[serde(alias = "pkg-main-component", default)]
+  pub pkg_main_component: MainPkgComponentConfig,
   /// Extra component packages to include in the PKG installer.
   #[serde(alias = "pkg-extra-components", default)]
-  pub pkg_extra_components: Vec<PkgComponentConfig>,
+  pub pkg_extra_components: Vec<ExtraPkgComponentConfig>,
   /// DMG-specific settings.
   #[serde(default)]
   pub dmg: DmgConfig,
@@ -772,7 +786,7 @@ impl Default for MacConfig {
       dmg_notarize_command: None,
       pkg_notarize_command: None,
       pkg_distribution: None,
-      pkg_main_component_filename: None,
+      pkg_main_component: Default::default(),
       pkg_extra_components: Vec::new(),
       dmg: Default::default(),
     }

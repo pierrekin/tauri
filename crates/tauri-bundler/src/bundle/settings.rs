@@ -321,9 +321,18 @@ pub struct IosSettings {
   pub bundle_version: Option<String>,
 }
 
-/// Configuration for a PKG component package.
+/// Configuration for the main PKG component package.
+#[derive(Clone, Debug, Default)]
+pub struct MainPkgComponentSettings {
+  /// The output filename for the main component package.
+  pub filename: Option<String>,
+  /// Path to the directory containing pre/post install scripts.
+  pub scripts: Option<PathBuf>,
+}
+
+/// Configuration for an extra PKG component package.
 #[derive(Clone, Debug)]
-pub struct PkgComponentSettings {
+pub struct ExtraPkgComponentSettings {
   /// The package identifier.
   pub identifier: String,
   /// The package version.
@@ -444,11 +453,10 @@ pub struct MacOsSettings {
   /// Path to the distribution XML file for PKG installer.
   /// Defaults to `distribution.xml` if not specified.
   pub pkg_distribution: Option<PathBuf>,
-  /// The filename for the main component package.
-  /// Defaults to "{app_name}.pkg" if not specified.
-  pub pkg_main_component_filename: Option<String>,
+  /// Configuration for the main component package.
+  pub pkg_main_component: MainPkgComponentSettings,
   /// Extra component packages to include in the PKG installer.
-  pub pkg_extra_components: Vec<PkgComponentSettings>,
+  pub pkg_extra_components: Vec<ExtraPkgComponentSettings>,
 }
 
 /// Entitlements for macOS code signing.

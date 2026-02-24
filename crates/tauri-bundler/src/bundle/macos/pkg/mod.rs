@@ -10,11 +10,7 @@ use crate::{
   PackageType, Settings,
 };
 
-use std::{
-  fs,
-  path::PathBuf,
-  process::Command,
-};
+use std::{fs, path::PathBuf, process::Command};
 
 pub struct Bundled {
   pub pkg: Vec<PathBuf>,
@@ -69,7 +65,8 @@ pub fn bundle_project(settings: &Settings, bundles: &[Bundle]) -> crate::Result<
   // This packages the .app bundle into a component package
   let main_component_filename = settings
     .macos()
-    .pkg_main_component_filename
+    .pkg_main_component
+    .filename
     .clone()
     .unwrap_or_else(|| format!("{}.pkg", product_name));
   let component_pkg_path = pkg_output_path.join(&main_component_filename);
@@ -79,8 +76,14 @@ pub fn bundle_project(settings: &Settings, bundles: &[Bundle]) -> crate::Result<
     .arg("--component")
     .arg(&app_bundle_path)
     .arg("--install-location")
-    .arg("/Applications")
-    .arg(&component_pkg_path);
+    .arg("/Applications");
+
+  // Add scripts if provided for main component
+  if let Some(scripts_path) = &settings.macos().pkg_main_component.scripts {
+    pkgbuild_cmd.arg("--scripts").arg(scripts_path);
+  }
+
+  pkgbuild_cmd.arg(&component_pkg_path);
 
   log::info!(action = "Running"; "pkgbuild (component package)");
   pkgbuild_cmd
@@ -106,9 +109,7 @@ pub fn bundle_project(settings: &Settings, bundles: &[Bundle]) -> crate::Result<
       extra_pkgbuild_cmd.arg("--nopayload");
     } else if let Some(component_path) = &extra_component.component {
       // Component mode (bundle or app)
-      extra_pkgbuild_cmd
-        .arg("--component")
-        .arg(component_path);
+      extra_pkgbuild_cmd.arg("--component").arg(component_path);
 
       if let Some(install_location) = &extra_component.install_location {
         extra_pkgbuild_cmd
@@ -117,9 +118,7 @@ pub fn bundle_project(settings: &Settings, bundles: &[Bundle]) -> crate::Result<
       }
     } else if let Some(root_path) = &extra_component.root {
       // Root mode (directory of files)
-      extra_pkgbuild_cmd
-        .arg("--root")
-        .arg(root_path);
+      extra_pkgbuild_cmd.arg("--root").arg(root_path);
 
       if let Some(install_location) = &extra_component.install_location {
         extra_pkgbuild_cmd
@@ -127,12 +126,10 @@ pub fn bundle_project(settings: &Settings, bundles: &[Bundle]) -> crate::Result<
           .arg(install_location);
       }
     } else {
-      return Err(crate::Error::GenericError(
-        format!(
-          "Extra component '{}' must specify either nopayload=true, component, or root",
-          extra_component.identifier
-        )
-      ));
+      return Err(crate::Error::GenericError(format!(
+        "Extra component '{}' must specify either nopayload=true, component, or root",
+        extra_component.identifier
+      )));
     }
 
     // Add scripts if provided
@@ -144,14 +141,12 @@ pub fn bundle_project(settings: &Settings, bundles: &[Bundle]) -> crate::Result<
     extra_pkgbuild_cmd.arg(&extra_component_path);
 
     log::info!(action = "Running"; "pkgbuild (extra component: {})", extra_component.identifier);
-    extra_pkgbuild_cmd
-      .output_ok()
-      .map_err(|e| {
-        crate::Error::ShellScriptError(format!(
-          "pkgbuild failed for component '{}': {}",
-          extra_component.identifier, e
-        ))
-      })?;
+    extra_pkgbuild_cmd.output_ok().map_err(|e| {
+      crate::Error::ShellScriptError(format!(
+        "pkgbuild failed for component '{}': {}",
+        extra_component.identifier, e
+      ))
+    })?;
   }
 
   // Step 2: Read distribution.xml
@@ -163,9 +158,10 @@ pub fn bundle_project(settings: &Settings, bundles: &[Bundle]) -> crate::Result<
   };
 
   if !distribution_xml_path.exists() {
-    return Err(crate::Error::GenericError(
-      format!("distribution.xml not found at {}. PKG bundling requires a distribution.xml file.", distribution_xml_path.display())
-    ));
+    return Err(crate::Error::GenericError(format!(
+      "distribution.xml not found at {}. PKG bundling requires a distribution.xml file.",
+      distribution_xml_path.display()
+    )));
   }
 
   log::info!(action = "Using"; "distribution.xml from {}", distribution_xml_path.display());

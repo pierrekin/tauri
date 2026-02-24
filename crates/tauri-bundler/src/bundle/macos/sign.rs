@@ -174,8 +174,8 @@ pub fn sign_pkg(
   identity: &str,
   settings: &Settings,
 ) -> crate::Result<()> {
-  use std::process::Command;
   use crate::utils::CommandExt;
+  use std::process::Command;
 
   log::info!(action = "Signing"; "PKG with identity \"{}\"", identity);
 

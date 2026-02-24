@@ -22,8 +22,8 @@ use notify_debouncer_full::new_debouncer;
 use serde::{Deserialize, Deserializer};
 use tauri_bundler::{
   AppCategory, AppImageSettings, BundleBinary, BundleSettings, DebianSettings, DmgSettings,
-  IosSettings, MacOsSettings, PackageSettings, PkgComponentSettings, Position, RpmSettings, Size,
-  UpdaterSettings, WindowsSettings,
+  ExtraPkgComponentSettings, IosSettings, MacOsSettings, MainPkgComponentSettings,
+  PackageSettings, Position, RpmSettings, Size, UpdaterSettings, WindowsSettings,
 };
 use tauri_utils::config::{parse::is_configuration_file, DeepLinkProtocol, RunnerConfig, Updater};
 
@@ -1589,12 +1589,15 @@ fn tauri_config_to_bundle_settings(
       dmg_notarize_command: config.macos.dmg_notarize_command.map(custom_sign_settings),
       pkg_notarize_command: config.macos.pkg_notarize_command.map(custom_sign_settings),
       pkg_distribution: config.macos.pkg_distribution,
-      pkg_main_component_filename: config.macos.pkg_main_component_filename,
+      pkg_main_component: MainPkgComponentSettings {
+        filename: config.macos.pkg_main_component.filename,
+        scripts: config.macos.pkg_main_component.scripts,
+      },
       pkg_extra_components: config
         .macos
         .pkg_extra_components
         .into_iter()
-        .map(|c| PkgComponentSettings {
+        .map(|c| ExtraPkgComponentSettings {
           identifier: c.identifier,
           version: c.version,
           nopayload: c.nopayload,
