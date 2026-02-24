@@ -3182,11 +3182,15 @@
             "null"
           ]
         },
-        "pkgMainComponentFilename": {
-          "description": "The filename for the main component package.\n Defaults to \"{app_name}.pkg\" if not specified.",
-          "type": [
-            "string",
-            "null"
+        "pkgMainComponent": {
+          "description": "Configuration for the main component package.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/MainPkgComponentConfig"
+            },
+            {
+              "type": "null"
+            }
           ]
         },
         "pkgExtraComponents": {
@@ -3194,7 +3198,7 @@
           "default": [],
           "type": "array",
           "items": {
-            "$ref": "#/definitions/PkgComponentConfig"
+            "$ref": "#/definitions/ExtraPkgComponentConfig"
           }
         },
         "dmg": {
@@ -3222,8 +3226,29 @@
       },
       "additionalProperties": false
     },
-    "PkgComponentConfig": {
-      "description": "Configuration for a PKG component package.\n\n See more: <https://v2.tauri.app/reference/config/#pkgcomponentconfig>",
+    "MainPkgComponentConfig": {
+      "description": "Configuration for the main PKG component package.\n\n See more: <https://v2.tauri.app/reference/config/#mainpkgcomponentconfig>",
+      "type": "object",
+      "properties": {
+        "filename": {
+          "description": "The output filename for the main component package.\n Defaults to \"{app_name}.pkg\" if not specified.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "scripts": {
+          "description": "Path to the directory containing pre/post install scripts.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "ExtraPkgComponentConfig": {
+      "description": "Configuration for an extra PKG component package.\n\n See more: <https://v2.tauri.app/reference/config/#extrapkgcomponentconfig>",
       "type": "object",
       "required": [
         "filename",
