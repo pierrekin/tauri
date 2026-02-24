@@ -755,8 +755,8 @@ pub struct MacConfig {
   #[serde(alias = "pkg-distribution")]
   pub pkg_distribution: Option<PathBuf>,
   /// Configuration for the main component package.
-  #[serde(alias = "pkg-main-component", default)]
-  pub pkg_main_component: MainPkgComponentConfig,
+  #[serde(alias = "pkg-main-component")]
+  pub pkg_main_component: Option<MainPkgComponentConfig>,
   /// Extra component packages to include in the PKG installer.
   #[serde(alias = "pkg-extra-components", default)]
   pub pkg_extra_components: Vec<ExtraPkgComponentConfig>,
@@ -786,7 +786,7 @@ impl Default for MacConfig {
       dmg_notarize_command: None,
       pkg_notarize_command: None,
       pkg_distribution: None,
-      pkg_main_component: Default::default(),
+      pkg_main_component: None,
       pkg_extra_components: Vec::new(),
       dmg: Default::default(),
     }
