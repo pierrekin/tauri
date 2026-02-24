@@ -400,8 +400,8 @@ pub struct MacOsSettings {
   pub provider_short_name: Option<String>,
   /// Path to the entitlements.plist file.
   pub entitlements: Option<String>,
-  /// Path to the Info.plist file for the bundle.
-  pub info_plist_path: Option<PathBuf>,
+  /// Path to the Info.plist file or raw plist value to merge with the bundle Info.plist.
+  pub info_plist: Option<PlistKind>,
   /// Specify a custom command to sign the .app bundle.
   /// This command needs to have a `%1` in it which is just a placeholder for the .app bundle path.
   /// The custom command is responsible for signing everything inside the bundle.
