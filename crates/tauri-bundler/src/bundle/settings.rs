@@ -398,8 +398,8 @@ pub struct MacOsSettings {
   pub hardened_runtime: bool,
   /// Provider short name for notarization.
   pub provider_short_name: Option<String>,
-  /// Path to the entitlements.plist file.
-  pub entitlements: Option<String>,
+  /// Path or contents of the entitlements.plist file.
+  pub entitlements: Option<Entitlements>,
   /// Path to the Info.plist file or raw plist value to merge with the bundle Info.plist.
   pub info_plist: Option<PlistKind>,
   /// Specify a custom command to sign the .app bundle.
